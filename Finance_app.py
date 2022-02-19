@@ -26,14 +26,25 @@ pfad_load='http://cosnews.pythonanywhere.com/static/ML_System/' #wird nicht verw
 
 #Datenimport
 #st.write('Start des Apps')
+#@st.cache 
 backtest=pd.read_csv('http://cosnews.pythonanywhere.com/static/Aktien/Grafik/Strategie1.csv') #noch Strategei1 einlesen
-Liste=pd.read_csv('http://cosnews.pythonanywhere.com/static/Instrumentenliste.csv')
+Liste=pd.read_csv('http://cosnews.pythonanywhere.com/static/Aktien/Instrumentenliste.csv')
+Gesamtdaten=pd.read_csv('http://cosnews.pythonanywhere.com/static/Aktien/Gesamtdaten.csv',index_col=0)#braucht keinen Index
 branche=sorted(Liste.Markt.unique()) 
 #st.dataframe(Liste)
-#st.dataframe(backtest)
+#st.dataframe(Liste)
+
+#Testregler
+stocks=3
+#n = st.slider('Performancezheitraum:', 1, 200,10)
+#st.checkbox('Show the dataset as table data',stocks,key="4")
+#ret = st.number_input("Enter a number here",min_value=0,max_value=200, step=5)
+#st.write("Your number is: ", ret)
+
+
 
 #Radiobutton für Branche oder Einzeltitel
-option = st.sidebar.radio('Auswahl:',['Branche','Einzeltitel','Alles','Portfolio'],index=0)
+option = st.sidebar.radio('Auswahl:',['Branche','Einzeltitel','Alles','Portfolio'],index=1)
 
 if option=='Branche':
     markt = st.sidebar.selectbox('Auswahl der Branche', branche,key="1") #Selectbox für Branche
@@ -57,25 +68,77 @@ if option=='Portfolio':
     einzeltitelwahl= st.sidebar.selectbox('Auswahl Einzeltitel aus Portfolio', einzeltitel,index=0,key="20") #Auswahl der Einzeltitel
     markt =Liste[(Liste['Name']==einzeltitelwahl)].Markt.values[0]
 
-
+#st.dataframe(Liste)
 new_df = Liste.loc[Liste['Name'].isin(einzeltitel)].Kuerzel #Konvertierung  der Auswahlliste in Kuerzel
-
-
 
 #Ermittlung Kürzel, Einzeltitel und Branceh
 #st.write('Kontrolle Kuerzel,einzeltitelwahl,markt') 
 new_df = Liste.loc[Liste['Name'].isin(einzeltitel)].Kuerzel #Konvertierung  der Auswahlliste in Kuerzel
 Kuerzel=Liste[(Liste['Name']==einzeltitelwahl)]#Kuerzel von dem langen Namen
 Kuerzel=Kuerzel['Kuerzel'].tolist()[0]
-#st.write(Kuerzel,einzeltitelwahl,markt)
+st.write(Kuerzel,einzeltitelwahl,markt)
 
+#Grafik
+st.write('Grafik')
+branchentitel=Liste[(Liste['Markt']==markt)].Name
+#st.write(branchentitel)
+#Branchentitel zur Einzeltitelauwahl
+n = st.slider('Performancezheitraum:', 1, 200,10)
+titelwahl= st.multiselect("Auswahl der Systeme", branchentitel,branchentitel)
+zeitraum=-n
+markt='Sektor'
+Gesamtdaten=Gesamtdaten[titelwahl]
+#st.dataframe(Gesamtdaten)
+Plotdaten=(Gesamtdaten[zeitraum:-1] / Gesamtdaten.iloc[zeitraum] * 100)
+#st.dataframe(Plotdaten)
+if st.button('Grafik anzeigen'):
+    st.line_chart(Plotdaten,width = 900,height=500)
+    #st.altair_chart(Plotdaten)
+
+Plotdaten.plot()
+plt.savefig('output.png')
+#Passwortcheck
 user_input = st.text_input("Passwort eingeben",type='password')
 mykey='Test'
-#if True:
-if user_input==mykey:
+if True:
+#if user_input==mykey:
     st.write('Korrektes Passwort')
     st.write(Kuerzel,einzeltitelwahl,markt)
-    #Backtestergenisse
+    
+    
+
+    with st.expander("0: Charts Wertentwicklung 10/100 Tage"):
+        #Regler Performancezeitraum
+        st.write('implementieren')
+        def Pgrafik(Gesamtdaten,einzeltitelwahl,zeitraum,markt):
+    
+            #print(Gesamtdaten)
+            #import cufflinks as cf
+            
+            Gesamtdaten=Gesamtdaten[einzeltitelwahl]
+            Gesamtdaten=(Gesamtdaten[zeitraum:-1] / Gesamtdaten.iloc[zeitraum] * 100)
+            #st.line_chart(daten)
+            Gesamtdaten.plot(figsize = (20, 10))
+            plt.title(str(markt)+' Wertentwicklung '+str(-zeitraum)+' Tagen ')
+            dokumentname1='Perfgrafik'
+            plt.savefig(dokumentname1,dpi=200) 
+            return
+
+        Gesamtdaten=pd.read_csv('http://cosnews.pythonanywhere.com/static/Gesamtdaten.csv',index_col=0)
+        zeitraum=-10
+        markt='Sektor'
+        #einzeltitelwahl=['Aareal Bank','ADLER GROUP SA','Adler Real Estate']
+        #Pgrafik(Gesamtdaten,einzeltitelwahl,zeitraum,markt)
+        #dokumentname1=str('Perfgrafik.png')
+        #st.write(Kuerzel,einzeltitelwahl,dokumentname1)
+        #st.image(dokumentname1)
+        
+
+
+
+
+
+
     with st.expander("1: Backtestergebnisse Alles oder Branche von Datei df_Strategien.pkl "):
         #Bacltest
         #st.write(new_df)
