@@ -100,8 +100,8 @@ plt.savefig('output.png')
 #Passwortcheck
 user_input = st.text_input("Passwort eingeben",type='password')
 mykey='Test'
-if True:
-#if user_input==mykey:
+#if True:
+if user_input==mykey:
     st.write('Korrektes Passwort')
     st.write(Kuerzel,einzeltitelwahl,markt)
     
