@@ -84,12 +84,13 @@ branchentitel=Liste[(Liste['Markt']==markt)].Name
 #st.write(branchentitel)
 #Branchentitel zur Einzeltitelauwahl
 n = st.slider('Performancezheitraum:', 1, 200,10)
-titelwahl= st.multiselect("Auswahl der Systeme", branchentitel,branchentitel)
 zeitraum=-n
-markt='Sektor'
+titelwahl= st.multiselect("Auswahl der Systeme", branchentitel,branchentitel)
+
+#markt='Sektor'
 Gesamtdaten=Gesamtdaten[titelwahl]
 #st.dataframe(Gesamtdaten)
-Plotdaten=(Gesamtdaten[zeitraum:-1] / Gesamtdaten.iloc[zeitraum] * 100)
+Plotdaten=(Gesamtdaten.iloc[zeitraum:]  / Gesamtdaten.iloc[zeitraum] * 100)
 #st.dataframe(Plotdaten)
 if st.button('Grafik anzeigen'):
     st.line_chart(Plotdaten,width = 900,height=500)
@@ -100,8 +101,8 @@ plt.savefig('output.png')
 #Passwortcheck
 user_input = st.text_input("Passwort eingeben",type='password')
 mykey='Test'
-#if True:
-if user_input==mykey:
+if True:
+#if user_input==mykey:
     st.write('Korrektes Passwort')
     st.write(Kuerzel,einzeltitelwahl,markt)
     
@@ -116,22 +117,23 @@ if user_input==mykey:
             #import cufflinks as cf
             
             Gesamtdaten=Gesamtdaten[einzeltitelwahl]
-            Gesamtdaten=(Gesamtdaten[zeitraum:-1] / Gesamtdaten.iloc[zeitraum] * 100)
+            Gesamtdaten=(Gesamtdaten.iloc[zeitraum:]  / Gesamtdaten.iloc[zeitraum] * 100)
             #st.line_chart(daten)
             Gesamtdaten.plot(figsize = (20, 10))
-            plt.title(str(markt)+' Wertentwicklung '+str(-zeitraum)+' Tagen ')
-            dokumentname1='Perfgrafik'
+            plt.title(Gesamtdaten.index[-1]+' '+str(markt)+' Wertentwicklung '+str(-zeitraum)+' Tagen ')
+            dokumentname1='Perfgrafik.png'
             plt.savefig(dokumentname1,dpi=200) 
-            return
+            return dokumentname1
 
         Gesamtdaten=pd.read_csv('http://cosnews.pythonanywhere.com/static/Gesamtdaten.csv',index_col=0)
-        zeitraum=-10
-        markt='Sektor'
+        #zeitraum=-10
+        #markt='Sektor'
+        st.write(Gesamtdaten)
         #einzeltitelwahl=['Aareal Bank','ADLER GROUP SA','Adler Real Estate']
-        #Pgrafik(Gesamtdaten,einzeltitelwahl,zeitraum,markt)
+        dokumentname1=Pgrafik(Gesamtdaten,einzeltitelwahl,zeitraum,markt)
         #dokumentname1=str('Perfgrafik.png')
-        #st.write(Kuerzel,einzeltitelwahl,dokumentname1)
-        #st.image(dokumentname1)
+        st.write(Kuerzel,einzeltitelwahl,dokumentname1)
+        st.image(dokumentname1)
         
 
 
